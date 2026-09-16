@@ -1,0 +1,12 @@
+node_modules/
+__pycache__/
+*.pyc
+.env
+AgriLoop-main.zip
+AgriLoop-main/
+.DS_Store
+backend/venv/
+venv/
+.venv/
+*.db
+backend/*.db
