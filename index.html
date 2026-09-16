@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/>
+  <title>AgriLoop • Biomass Network & Traceability</title>
+  <link href="https://fonts.googleapis.com" rel="preconnect"/>
+  <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..24,400..600,0..1,0&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class'
+    }
+  </script>
+  <style>
+    /* ----- CORE STYLES & RESET ----- */
+    @layer base {
+      html, body {
+        width: 100vw;
+        height: 100vh;
+        margin: 0;
+        padding: 0;
+        overflow: hidden; /* Prevent scrolling on root */
+        -webkit-tap-highlight-color: transparent;
+        background-color: #EEF2F6;
+        color: #0F172A;
+        font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+      }
+      .dark html, .dark body { background-color: #0F172A; color: #F8FAFC; }
+      .pb-safe { padding-bottom: env(safe-area-inset-bottom, 16px); }
+      .pt-safe { padding-top: env(safe-area-inset-top, 16px); }
+    }
+    ::-webkit-scrollbar { display: none; }
+
+    /* ----- NEUMORPHISM DEFAULTS ----- */
+    .neu-card {
+      background: #EEF2F6;
+      box-shadow: 7px 7px 16px #d1d9e6, -7px -7px 16px #ffffff;
+      border-radius: 1.25rem;
+      border: 1px solid rgba(255, 255, 255, 0.7);
+    }
+    .dark .neu-card {
+      background: #182234;
+      box-shadow: 7px 7px 16px #0c121d, -7px -7px 16px #24324b;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    .neu-inset {
+      background: #EEF2F6;
+      box-shadow: inset 4px 4px 8px #d1d9e6, inset -4px -4px 8px #ffffff;
+      border-radius: 1rem;
+    }
+    .dark .neu-inset {
+      background: #121927;
+      box-shadow: inset 4px 4px 8px #0a0e17, inset -4px -4px 8px #1a2437;
+    }
+    .neu-btn {
+      background: linear-gradient(145deg, #ffffff, #e6ecf2);
+      box-shadow: 5px 5px 12px #d1d9e6, -5px -5px 12px #ffffff;
+      border-radius: 0.85rem;
+      transition: all 0.15s ease-in-out;
+    }
+    .neu-btn:active {
+      box-shadow: inset 3px 3px 6px #d1d9e6, inset -3px -3px 6px #ffffff;
+      transform: translateY(1px);
+    }
+    .dark .neu-btn {
+      background: linear-gradient(145deg, #1c283d, #131c2c);
+      box-shadow: 5px 5px 12px #0b101b, -5px -5px 12px #212f47;
+      border-radius: 0.85rem;
+    }
+    .dark .neu-btn:active { box-shadow: inset 3px 3px 6px #0b101b, inset -3px -3px 6px #212f47; }
+
+    /* Bauhaus Buttons */
+    .neu-btn-green {
+      background: linear-gradient(145deg, #10b981, #047857) !important;
+      box-shadow: 5px 5px 14px rgba(4, 120, 87, 0.35), -4px -4px 10px #ffffff !important;
+      color: white !important;
+    }
+    .neu-btn-blue {
+      background: linear-gradient(145deg, #3b82f6, #1d4ed8) !important;
+      box-shadow: 5px 5px 14px rgba(29, 78, 216, 0.35), -4px -4px 10px #ffffff !important;
+      color: white !important;
+    }
+    .neu-btn:disabled, .neu-btn-green:disabled, .neu-btn-blue:disabled {
+      opacity: 0.5;
+      pointer-events: none;
+    }
+
+    /* Input Fields */
+    .neu-input {
+      width: 100%;
+      background: #EEF2F6;
+      box-shadow: inset 4px 4px 8px #d1d9e6, inset -4px -4px 8px #ffffff;
+      border-radius: 0.75rem;
+      border: none;
+      padding: 0.75rem 1rem;
+      outline: none;
+      transition: all 0.2s ease;
+      font-family: 'JetBrains Mono', monospace;
+      color: #000000;
+    }
+    .neu-input:focus {
+      box-shadow: inset 6px 6px 10px #d1d9e6, inset -6px -6px 10px #ffffff, 0 0 0 2px #1E88E5;
+    }
+    .dark .neu-input {
+      background: #121927;
+      box-shadow: inset 4px 4px 8px #0a0e17, inset -4px -4px 8px #1a2437;
+      color: white;
+    }
+    .dark .neu-input:focus {
+      box-shadow: inset 6px 6px 10px #0a0e17, inset -6px -6px 10px #1a2437, 0 0 0 2px #3b82f6;
+    }
+
+    /* ----- ANIMATIONS & TRANSITIONS ----- */
+    .screen {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      display: flex;
+      flex-direction: column;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(20px);
+      transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1), transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 10;
+    }
+    .screen.active {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0);
+      z-index: 20;
+    }
+    .screen.exit {
+      transform: scale(0.95);
+      opacity: 0;
+    }
+
+    /* Staggered form elements */
+    .stagger-1 { transition-delay: 0.1s; }
+    .stagger-2 { transition-delay: 0.2s; }
+    .stagger-3 { transition-delay: 0.3s; }
+
+    /* Bauhaus Geometric Animations */
+    @keyframes float1 { 0% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-20px) rotate(10deg); } 100% { transform: translateY(0) rotate(0deg); } }
+    @keyframes float2 { 0% { transform: translateY(0) rotate(0deg) scale(1); } 50% { transform: translateY(15px) rotate(-15deg) scale(1.1); } 100% { transform: translateY(0) rotate(0deg) scale(1); } }
+    @keyframes pulse-ring { 0% { transform: scale(0.8); opacity: 0.5; } 100% { transform: scale(1.5); opacity: 0; } }
+
+    .shape-circle { animation: float1 6s ease-in-out infinite; }
+    .shape-triangle { animation: float2 8s ease-in-out infinite; }
+    .shape-square { animation: float1 7s ease-in-out infinite reverse; }
+
+    /* Toast */
+    #toast {
+      position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(100px);
+      background: #1e293b; color: white; padding: 12px 24px; border-radius: 999px;
+      font-weight: 600; font-size: 14px; opacity: 0; z-index: 9999;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 10px 25px -5px rgba(0,0,0,0.3);
+    }
+    #toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+  </style>
+</head>
+<body class="text-slate-900 dark:text-slate-100 antialiased selection:bg-blue-200">
+
+  <!-- THEME TOGGLE (Global) -->
+  <button id="theme-toggle" class="absolute top-4 right-4 w-10 h-10 neu-btn flex items-center justify-center text-slate-700 dark:text-slate-200 z-50 pt-safe">
+    <span class="material-symbols-outlined text-[20px] dark:hidden">dark_mode</span>
+    <span class="material-symbols-outlined text-[20px] hidden dark:inline">light_mode</span>
+  </button>
+
+  <!-- SCREEN 1: SPLASH -->
+  <div id="screen-splash" class="screen active justify-center items-center">
+    <div class="relative w-56 h-56 flex items-center justify-center">
+      <!-- Bauhaus Background Rays -->
+      <div class="absolute w-20 h-20 bg-[#D32F2F] rounded-full shape-circle -top-2 -left-2 mix-blend-multiply dark:mix-blend-screen opacity-70"></div>
+      <div class="absolute w-20 h-20 bg-[#1E88E5] shape-square -bottom-2 -right-2 mix-blend-multiply dark:mix-blend-screen opacity-70 rotate-12"></div>
+      
+      <!-- Modern Smart Agriculture SVG Vector Graphic -->
+      <div class="relative z-10 w-36 h-36 neu-card flex flex-col items-center justify-center rounded-3xl bg-white/70 dark:bg-slate-900/80 backdrop-blur-md border border-white/80 p-4 shadow-xl">
+        <svg class="w-20 h-20 text-[#059669]" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M32 6C17.636 6 6 17.636 6 32c0 14.364 11.636 26 26 26 14.364 0 26-11.636 26-26C58 17.636 46.364 6 32 6z" stroke="currentColor" stroke-width="2.5" stroke-dasharray="4 4" class="animate-spin" style="animation-duration: 20s;"/>
+          <path d="M32 14v36M14 32h36" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.3"/>
+          <path d="M32 18c-7.732 0-14 6.268-14 14 0 7.732 6.268 14 14 14 7.732 0 14-6.268 14-14 0-7.732-6.268-14-14-14z" fill="#059669" fill-opacity="0.15"/>
+          <path d="M26 38c0-6 6-10 12-12m-6 16c4.418 0 8-3.582 8-8s-3.582-8-8-8-8 3.582-8 8 3.582 8 8 8z" stroke="#059669" stroke-width="3" stroke-linecap="round"/>
+          <circle cx="32" cy="22" r="3" fill="#F59E0B"/>
+          <circle cx="22" cy="38" r="2.5" fill="#1E88E5"/>
+          <circle cx="42" cy="38" r="2.5" fill="#D32F2F"/>
+        </svg>
+      </div>
+    </div>
+    
+    <div class="mt-6 text-center">
+      <h1 class="text-3xl font-extrabold tracking-tight text-black dark:text-white">Agri<span class="text-[#059669]">Loop</span></h1>
+      <p class="text-xs font-mono font-black text-black dark:text-slate-300 mt-1.5 tracking-widest uppercase flex items-center justify-center gap-1.5">
+        <span class="w-1.5 h-1.5 rounded-full bg-[#059669]"></span>
+        <span>Sustainable Biomass Network</span>
+        <span class="w-1.5 h-1.5 rounded-full bg-[#059669]"></span>
+      </p>
+    </div>
+    
+    <!-- Loading Dots -->
+    <div class="absolute bottom-16 flex gap-2">
+      <div class="w-2.5 h-2.5 rounded-full bg-slate-900 dark:bg-slate-300 animate-bounce" style="animation-delay: 0ms"></div>
+      <div class="w-2.5 h-2.5 rounded-full bg-slate-900 dark:bg-slate-300 animate-bounce" style="animation-delay: 150ms"></div>
+      <div class="w-2.5 h-2.5 rounded-full bg-slate-900 dark:bg-slate-300 animate-bounce" style="animation-delay: 300ms"></div>
+    </div>
+  </div>
+
+  <!-- SCREEN 2: ROLE SELECTION -->
+  <div id="screen-roles" class="screen px-6 pt-safe overflow-y-auto">
+    <!-- Visual Hero Onboarding Banner -->
+    <div class="pt-6 pb-2">
+      <!-- Numbered Stepper Bar -->
+      <div class="neu-card p-3 mb-4 flex items-center justify-between text-xs font-bold">
+        <div class="flex items-center gap-2 text-emerald-600">
+          <span class="w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center font-extrabold text-[11px]">1</span>
+          <span class="font-extrabold">Select Role</span>
+        </div>
+        <span class="w-8 h-[2px] bg-slate-300 dark:bg-slate-700"></span>
+        <div class="flex items-center gap-2 text-slate-400">
+          <span class="w-6 h-6 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-500 flex items-center justify-center font-extrabold text-[11px]">2</span>
+          <span>Verify</span>
+        </div>
+        <span class="w-8 h-[2px] bg-slate-300 dark:bg-slate-700"></span>
+        <div class="flex items-center gap-2 text-slate-400">
+          <span class="w-6 h-6 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-500 flex items-center justify-center font-extrabold text-[11px]">3</span>
+          <span>Hub</span>
+        </div>
+      </div>
+
+      <div class="neu-card p-4 bg-gradient-to-br from-[#EEF2F6] to-white dark:from-[#182234] dark:to-[#0F172A] border border-white/60 dark:border-slate-800 flex items-center justify-between mb-4">
+        <div>
+          <span class="text-[10px] font-mono font-black text-[#059669] uppercase tracking-widest block">AGRILOOP PORTAL</span>
+          <h2 class="text-xl font-extrabold text-black dark:text-white tracking-tight mt-0.5">Select Your Role</h2>
+          <p class="text-xs text-slate-800 dark:text-slate-300 font-bold mt-1">Seamless biomass trading & traceability</p>
+        </div>
+        <!-- Hero Illustration SVG -->
+        <svg class="w-16 h-16 text-[#059669] shrink-0 opacity-90" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="8" y="24" width="48" height="32" rx="8" fill="#059669" fill-opacity="0.15" stroke="#059669" stroke-width="2"/>
+          <path d="M16 24V16a8 8 0 0116 0v8" stroke="#1E88E5" stroke-width="2.5" stroke-linecap="round"/>
+          <circle cx="32" cy="40" r="6" stroke="#F59E0B" stroke-width="2.5"/>
+          <path d="M32 30v4M44 36h4M16 36h4" stroke="#059669" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </div>
+    </div>
+
+    <div class="flex flex-col gap-4">
+      <!-- Company / Buyer -->
+      <button class="role-btn neu-card relative overflow-hidden group text-left h-40 border-2 border-transparent transition-all active:scale-95" data-role="company">
+        <div class="absolute top-0 right-0 w-36 h-36 bg-[#1E88E5]/10 rounded-bl-[100px] -mr-8 -mt-8 transition-transform group-hover:scale-110"></div>
+        
+        <!-- Industrial Harvester SVG Graphics -->
+        <svg class="absolute bottom-2 right-3 w-24 h-24 text-[#1E88E5]/30 group-hover:text-[#1E88E5]/50 transition-colors" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M10 44h44M14 44a6 6 0 1012 0M38 44a6 6 0 1012 0" stroke="currentColor" stroke-width="3"/>
+          <path d="M12 36l8-16h20l8 16H12z" fill="currentColor" fill-opacity="0.2" stroke="currentColor" stroke-width="2"/>
+          <rect x="22" y="24" width="10" height="8" rx="2" fill="currentColor"/>
+        </svg>
+
+        <div class="relative z-10 p-5 h-full flex flex-col justify-between">
+          <div class="flex items-center justify-between">
+            <span class="w-10 h-10 neu-btn flex items-center justify-center text-[#1E88E5] font-black">
+              <span class="material-symbols-outlined text-[24px]">corporate_fare</span>
+            </span>
+            <span class="px-2.5 py-1 rounded-full text-[10px] font-mono font-black bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300">ENTERPRISE</span>
+          </div>
+          <div>
+            <h3 class="font-black text-lg text-black dark:text-white">Company / Buyer</h3>
+            <p class="text-xs font-mono text-slate-800 dark:text-slate-300 font-bold mt-1">Baler Operators & Hub Logistics</p>
+          </div>
+        </div>
+      </button>
+
+      <!-- Farmer / Seller -->
+      <button class="role-btn neu-card relative overflow-hidden group text-left h-40 border-2 border-transparent transition-all active:scale-95" data-role="farmer">
+        <div class="absolute top-0 right-0 w-36 h-36 bg-[#059669]/10 rounded-bl-[100px] -mr-8 -mt-8 transition-transform group-hover:scale-110"></div>
+        
+        <!-- Farm & Sprout Crop SVG Graphics -->
+        <svg class="absolute bottom-2 right-3 w-24 h-24 text-[#059669]/30 group-hover:text-[#059669]/50 transition-colors" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M8 48c12-4 20-4 32 0s20 4 32 0" stroke="currentColor" stroke-width="2.5"/>
+          <path d="M32 48V20M32 28c-8-4-14 0-14 8 6 0 12-4 14-8zm0 8c8-4 14 0 14 8-6 0-12-4-14-8z" fill="currentColor" fill-opacity="0.25" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/>
+        </svg>
+
+        <div class="relative z-10 p-5 h-full flex flex-col justify-between">
+          <div class="flex items-center justify-between">
+            <span class="w-10 h-10 neu-btn flex items-center justify-center text-[#059669] font-black">
+              <span class="material-symbols-outlined text-[24px]">agriculture</span>
+            </span>
+            <span class="px-2.5 py-1 rounded-full text-[10px] font-mono font-black bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">SUPPLIER</span>
+          </div>
+          <div>
+            <h3 class="font-black text-lg text-black dark:text-white">Farmer / Seller</h3>
+            <p class="text-xs font-mono text-slate-800 dark:text-slate-300 font-bold mt-1">Manage Payouts & Traceability</p>
+          </div>
+        </div>
+      </button>
+    </div>
+  </div>
+
+  <!-- SCREEN 3: AUTHENTICATION -->
+  <div id="screen-auth" class="screen px-6 pt-safe overflow-y-auto">
+    <div class="pt-6 pb-4">
+      <button id="btn-back-auth" class="w-10 h-10 neu-btn flex items-center justify-center mb-4 text-black dark:text-slate-200">
+        <span class="material-symbols-outlined text-[20px]">arrow_back</span>
+      </button>
+
+      <!-- Auth Visual Header Card -->
+      <div class="neu-card p-4 mb-4 flex items-center justify-between">
+        <div>
+          <div class="flex items-center gap-2 mb-1">
+            <span id="auth-role-icon" class="material-symbols-outlined text-[22px]">person</span>
+            <span id="auth-role-badge" class="text-[10px] font-mono font-bold px-2 py-0.5 rounded-md text-white uppercase tracking-wider">ROLE</span>
+          </div>
+          <h2 id="auth-title" class="text-2xl font-extrabold tracking-tight text-black dark:text-white">Welcome</h2>
+          <p id="auth-subtitle" class="text-xs text-slate-800 dark:text-slate-300 font-bold mt-0.5">Sign in to your account</p>
+        </div>
+        <svg class="w-12 h-12 text-[#1E88E5] shrink-0" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="24" cy="24" r="20" fill="#1E88E5" fill-opacity="0.15" stroke="#1E88E5" stroke-width="2"/>
+          <path d="M24 14v12l8 4" stroke="#1E88E5" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Mode Toggle (Login / Signup) -->
+    <div class="neu-inset p-1.5 flex items-center mb-6 relative">
+      <div id="auth-toggle-pill" class="absolute h-[calc(100%-12px)] w-[calc(50%-6px)] neu-card rounded-lg transition-transform duration-300 ease-out left-1.5 border-none"></div>
+      <button id="tab-login" class="flex-1 py-2 text-sm font-black text-black dark:text-slate-300 relative z-10 transition-colors">Log In</button>
+      <button id="tab-signup" class="flex-1 py-2 text-sm font-black text-slate-700 dark:text-slate-400 relative z-10 transition-colors">Sign Up</button>
+    </div>
+
+    <!-- Step 1: Credentials Form -->
+    <form id="form-credentials" class="flex flex-col gap-5 flex-1 relative">
+      <div>
+        <label class="block text-xs font-extrabold text-black dark:text-slate-300 mb-1.5 ml-1">Email Address</label>
+        <div class="relative">
+          <span class="material-symbols-outlined absolute left-3.5 top-3 text-[18px] text-slate-600 dark:text-slate-400">mail</span>
+          <input type="email" id="inp-email" required placeholder="name@domain.com" class="neu-input pl-10 text-black dark:text-white font-bold" />
+        </div>
+      </div>
+      
+      <div>
+        <label class="block text-xs font-extrabold text-black dark:text-slate-300 mb-1.5 ml-1">Password</label>
+        <div class="relative">
+          <span class="material-symbols-outlined absolute left-3.5 top-3 text-[18px] text-slate-600 dark:text-slate-400">lock</span>
+          <input type="password" id="inp-password" required placeholder="••••••••" class="neu-input pl-10 text-black dark:text-white font-bold" minlength="6" />
+        </div>
+      </div>
+
+      <button type="submit" id="btn-submit-auth" class="h-14 rounded-xl font-extrabold text-sm flex items-center justify-center gap-2 mt-4 tracking-wide shadow-lg">
+        <span id="btn-submit-text">Continue</span>
+        <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+      </button>
+    </form>
+
+    <!-- Step 2: OTP Verification Form (Hidden initially) -->
+    <form id="form-otp" class="flex flex-col gap-6 flex-1 absolute inset-x-6 top-64 opacity-0 pointer-events-none translate-x-8 transition-all duration-300">
+      <div class="text-center">
+        <div class="inline-flex items-center justify-center w-16 h-16 neu-inset rounded-full mb-4 text-[#F59E0B]">
+          <span class="material-symbols-outlined text-[32px]">mark_email_read</span>
+        </div>
+        <h3 class="text-lg font-black text-black dark:text-white">Check your email</h3>
+        <p class="text-xs text-slate-800 dark:text-slate-300 mt-2 leading-relaxed font-semibold">
+          We sent a 6-digit verification code to<br/>
+          <strong id="otp-email-display" class="font-mono text-black dark:text-slate-100 font-extrabold">email@example.com</strong>
+        </p>
+      </div>
+
+      <div>
+        <label class="block text-xs font-extrabold text-black dark:text-slate-300 mb-2 text-center">Enter Verification Code</label>
+        <div class="flex justify-between gap-2 max-w-[280px] mx-auto" id="otp-inputs">
+          <!-- 6 inputs for OTP -->
+          <input type="text" maxlength="1" class="w-10 h-12 neu-input text-center text-lg font-black px-0 text-black dark:text-white" pattern="[0-9]" required autocomplete="off">
+          <input type="text" maxlength="1" class="w-10 h-12 neu-input text-center text-lg font-black px-0 text-black dark:text-white" pattern="[0-9]" required autocomplete="off">
+          <input type="text" maxlength="1" class="w-10 h-12 neu-input text-center text-lg font-black px-0 text-black dark:text-white" pattern="[0-9]" required autocomplete="off">
+          <input type="text" maxlength="1" class="w-10 h-12 neu-input text-center text-lg font-black px-0 text-black dark:text-white" pattern="[0-9]" required autocomplete="off">
+          <input type="text" maxlength="1" class="w-10 h-12 neu-input text-center text-lg font-black px-0 text-black dark:text-white" pattern="[0-9]" required autocomplete="off">
+          <input type="text" maxlength="1" class="w-10 h-12 neu-input text-center text-lg font-black px-0 text-black dark:text-white" pattern="[0-9]" required autocomplete="off">
+        </div>
+        <p class="text-[10px] text-center text-slate-700 dark:text-slate-400 mt-4 font-bold">(Simulated: Enter any 6 digits like 123456)</p>
+      </div>
+
+      <button type="submit" id="btn-verify-otp" class="h-14 rounded-xl font-extrabold text-sm flex items-center justify-center gap-2 tracking-wide neu-btn-green w-full">
+        <span>Verify & Create Account</span>
+        <span class="material-symbols-outlined text-[18px]">check_circle</span>
+      </button>
+      
+      <button type="button" id="btn-cancel-otp" class="text-xs font-bold text-slate-700 dark:text-slate-300 py-2">Change Email</button>
+    </form>
+  </div>
+
+  <!-- SCREEN 4: MAIN APP CONTAINER -->
+  <div id="screen-app" class="screen">
+    <!-- Unified Shell Header -->
+    <header class="fixed top-0 inset-x-0 z-50 pt-safe bg-[#EEF2F6]/95 dark:bg-[#0F172A]/95 backdrop-blur-md border-b border-slate-300/60 dark:border-slate-800 h-[64px] flex items-center justify-between px-4 max-w-md mx-auto w-full">
+      <div class="flex items-center gap-2.5">
+        <div id="app-header-icon" class="w-9 h-9 neu-btn flex items-center justify-center font-extrabold text-white shadow-md">
+          <span class="material-symbols-outlined text-[20px]">eco</span>
+        </div>
+        <div>
+          <div class="flex items-center gap-1.5 leading-none">
+            <span class="text-[9px] font-mono tracking-widest text-emerald-600 dark:text-emerald-400 uppercase font-black">AGRILOOP NETWORK</span>
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+          </div>
+          <span id="app-header-title" class="font-extrabold text-sm tracking-tight text-slate-900 dark:text-white">AgriLoop Hub</span>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <button id="shell-theme-toggle" class="w-9 h-9 neu-btn flex items-center justify-center text-slate-700 dark:text-slate-200">
+          <span class="material-symbols-outlined text-[18px] dark:hidden">dark_mode</span>
+          <span class="material-symbols-outlined text-[18px] hidden dark:inline">light_mode</span>
+        </button>
+        <button id="btn-logout" class="neu-btn px-3 py-1.5 text-xs font-extrabold text-red-600 dark:text-red-400 flex items-center gap-1 cursor-pointer">
+          <span class="material-symbols-outlined text-[16px]">logout</span>
+          <span>Exit</span>
+        </button>
+      </div>
+    </header>
+    
+    <!-- Iframe container -->
+    <div class="flex-1 w-full pt-[calc(64px+env(safe-area-inset-top,0px))]">
+      <iframe id="app-frame" src="about:blank" class="w-full h-full border-none"></iframe>
+    </div>
+  </div>
+
+  <!-- Global Toast -->
+  <div id="toast">Message goes here</div>
+
+  <!-- ----- LOGIC ----- -->
+  <script>
+    /* ----- UTILITIES ----- */
+    let toastTimeout;
+    const UI = {
+      screens: document.querySelectorAll('.screen'),
+      showScreen(id) {
+        this.screens.forEach(s => {
+          if(s.id === id) {
+            s.classList.remove('exit', 'hidden');
+            s.classList.add('active');
+          } else if(s.classList.contains('active')) {
+            s.classList.remove('active');
+            s.classList.add('exit');
+          }
+        });
+      },
+      toast(msg, type = 'default') {
+        const el = document.getElementById('toast');
+        el.innerText = msg;
+        
+        // Add error styling if needed
+        if (type === 'error') {
+          el.style.background = '#b91c1c';
+        } else if (type === 'success') {
+          el.style.background = '#059669';
+        } else {
+          el.style.background = '#1e293b';
+        }
+
+        el.classList.add('show');
+        
+        clearTimeout(toastTimeout);
+        toastTimeout = setTimeout(() => {
+          el.classList.remove('show');
+        }, 3000);
+      }
+    };
+
+    /* ----- STATE ----- */
+    const State = {
+      selectedRole: null, // 'company' or 'farmer'
+      authMode: 'login', // 'login' or 'signup'
+      pendingEmail: null,
+      pendingPassword: null
+    };
+
+    /* ----- THEME TOGGLE & IFRAME SYNC ----- */
+    const toggleTheme = () => {
+      const isDark = document.documentElement.classList.toggle('dark');
+      try {
+        const frameWin = document.getElementById('app-frame')?.contentWindow;
+        if (frameWin && frameWin.document) {
+          if (isDark) frameWin.document.documentElement.classList.add('dark');
+          else frameWin.document.documentElement.classList.remove('dark');
+        }
+      } catch(e) {}
+    };
+
+    document.getElementById('theme-toggle').addEventListener('click', toggleTheme);
+    const shellToggle = document.getElementById('shell-theme-toggle');
+    if (shellToggle) shellToggle.addEventListener('click', toggleTheme);
+
+    /* ----- DATABASE (IndexedDB) ----- */
+    const DB = {
+      db: null,
+      init() {
+        return new Promise((resolve, reject) => {
+          const req = indexedDB.open('AgriLoopDB', 1);
+          req.onupgradeneeded = (e) => {
+            const db = e.target.result;
+            if (!db.objectStoreNames.contains('users')) {
+              db.createObjectStore('users', { keyPath: 'email' });
+            }
+            if (!db.objectStoreNames.contains('session')) {
+              db.createObjectStore('session', { keyPath: 'id' });
+            }
+          };
+          req.onsuccess = (e) => { this.db = e.target.result; resolve(); };
+          req.onerror = (e) => { console.error("DB Error", e); reject(e); };
+        });
+      },
+      async hashPassword(password) {
+        if (!crypto || !crypto.subtle) {
+          return btoa(password); 
+        }
+        const msgUint8 = new TextEncoder().encode(password);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+      },
+      getUser(email) {
+        return new Promise((resolve, reject) => {
+          try {
+            const tx = this.db.transaction('users', 'readonly');
+            const req = tx.objectStore('users').get(email.toLowerCase());
+            req.onsuccess = () => resolve(req.result);
+            req.onerror = () => reject(req.error);
+          } catch (e) {
+            reject(e);
+          }
+        });
+      },
+      saveUser(user) {
+        return new Promise((resolve, reject) => {
+          try {
+            const tx = this.db.transaction('users', 'readwrite');
+            tx.objectStore('users').put(user);
+            tx.oncomplete = () => resolve();
+            tx.onerror = () => reject(tx.error);
+          } catch (e) {
+            reject(e);
+          }
+        });
+      },
+      setSession(email, role) {
+        return new Promise((resolve, reject) => {
+          try {
+            const tx = this.db.transaction('session', 'readwrite');
+            tx.objectStore('session').put({ id: 'current', email: email.toLowerCase(), role, timestamp: Date.now() });
+            tx.oncomplete = () => resolve();
+            tx.onerror = () => reject(tx.error);
+          } catch (e) {
+            reject(e);
+          }
+        });
+      },
+      getSession() {
+        return new Promise((resolve) => {
+          try {
+            const tx = this.db.transaction('session', 'readonly');
+            const req = tx.objectStore('session').get('current');
+            req.onsuccess = () => resolve(req.result);
+            req.onerror = () => resolve(null);
+          } catch (e) {
+            resolve(null);
+          }
+        });
+      },
+      clearSession() {
+        return new Promise((resolve) => {
+          try {
+            const tx = this.db.transaction('session', 'readwrite');
+            tx.objectStore('session').delete('current');
+            tx.oncomplete = () => resolve();
+          } catch(e) {
+            resolve();
+          }
+        });
+      }
+    };
+
+    /* ----- FLOW CONTROLLERS ----- */
+    
+    // 1. Splash Auto-Advance & Session Check
+    async function initApp() {
+      try {
+        await DB.init();
+      } catch (err) {
+        console.warn("IndexedDB not available, auth persistence disabled.");
+      }
+      setTimeout(async () => {
+        const session = await DB.getSession();
+        if (session && session.email && session.role) {
+          launchApp(session.role); // Auto-login
+        } else {
+          UI.showScreen('screen-roles');
+        }
+      }, 2000);
+    }
+
+    // 2. Role Selection
+    document.querySelectorAll('.role-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const role = e.currentTarget.dataset.role;
+        State.selectedRole = role;
+        
+        // Configure Auth UI
+        const isCompany = role === 'company';
+        const accentClass = isCompany ? 'bg-[#1E88E5]' : 'bg-[#059669]';
+        const btnClass = isCompany ? 'neu-btn-blue' : 'neu-btn-green';
+        
+        document.getElementById('auth-role-icon').innerText = isCompany ? 'corporate_fare' : 'agriculture';
+        document.getElementById('auth-role-icon').className = `material-symbols-outlined text-[24px] ${isCompany ? 'text-[#1E88E5]' : 'text-[#059669]'}`;
+        
+        const badge = document.getElementById('auth-role-badge');
+        badge.innerText = isCompany ? 'Company/Buyer' : 'Farmer/Seller';
+        badge.className = `text-[10px] font-mono font-bold px-2 py-0.5 rounded-md text-white uppercase tracking-wider ${accentClass}`;
+        
+        const submitBtn = document.getElementById('btn-submit-auth');
+        submitBtn.className = `h-14 rounded-xl font-extrabold text-sm flex items-center justify-center gap-2 mt-4 tracking-wide shadow-lg w-full ${btnClass}`;
+        
+        UI.showScreen('screen-auth');
+        setAuthMode('login'); // Default to login
+      });
+    });
+
+    document.getElementById('btn-back-auth').addEventListener('click', () => {
+      UI.showScreen('screen-roles');
+      resetAuthForm(true);
+    });
+
+    // 3. Auth UI Toggles
+    const tabLogin = document.getElementById('tab-login');
+    const tabSignup = document.getElementById('tab-signup');
+    const pill = document.getElementById('auth-toggle-pill');
+    
+    function setAuthMode(mode) {
+      State.authMode = mode;
+      const isLogin = mode === 'login';
+      
+      pill.style.transform = isLogin ? 'translateX(0)' : 'translateX(100%)';
+      tabLogin.classList.toggle('text-slate-700', isLogin);
+      tabLogin.classList.toggle('dark:text-slate-300', isLogin);
+      tabLogin.classList.toggle('text-slate-500', !isLogin);
+      
+      tabSignup.classList.toggle('text-slate-700', !isLogin);
+      tabSignup.classList.toggle('dark:text-slate-300', !isLogin);
+      tabSignup.classList.toggle('text-slate-500', isLogin);
+      
+      document.getElementById('auth-title').innerText = isLogin ? 'Welcome Back' : 'Create Account';
+      document.getElementById('auth-subtitle').innerText = isLogin ? 'Sign in to continue' : 'Join AgriLoop network';
+      document.getElementById('btn-submit-text').innerText = isLogin ? 'Log In' : 'Send Verification Code';
+      
+      // Clear password field on switch
+      document.getElementById('inp-password').value = '';
+    }
+
+    tabLogin.addEventListener('click', () => setAuthMode('login'));
+    tabSignup.addEventListener('click', () => setAuthMode('signup'));
+
+    // 4. Auth Form Submission (Login or start OTP)
+    document.getElementById('form-credentials').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('inp-email').value.trim();
+      const password = document.getElementById('inp-password').value;
+      const submitBtn = document.getElementById('btn-submit-auth');
+      
+      if (!email || !password) {
+        return UI.toast("Please fill in all fields", "error");
+      }
+
+      submitBtn.disabled = true;
+
+      try {
+        if (State.authMode === 'login') {
+          // Process Login
+          const user = await DB.getUser(email);
+          const hash = await DB.hashPassword(password);
+          
+          if (!user) throw new Error("Account not found. Please sign up.");
+          if (user.passwordHash !== hash) throw new Error("Incorrect password.");
+          if (user.role !== State.selectedRole) throw new Error(`This email is registered as a ${user.role}. Please select the correct role.`);
+          if (!user.verified) throw new Error("Account not verified. Please sign up again.");
+          
+          await DB.setSession(user.email, user.role);
+          UI.toast("Login successful", "success");
+          launchApp(user.role);
+          
+        } else {
+          // Process Signup -> Send to OTP phase
+          const user = await DB.getUser(email);
+          if (user && user.verified) {
+             setAuthMode('login');
+             throw new Error("Email already registered. Please log in.");
+          }
+          
+          State.pendingEmail = email;
+          State.pendingPassword = await DB.hashPassword(password);
+          
+          // Animate to OTP form
+          document.getElementById('form-credentials').style.opacity = '0';
+          document.getElementById('form-credentials').style.pointerEvents = 'none';
+          document.getElementById('form-credentials').style.transform = 'translateX(-20px)';
+          
+          const otpForm = document.getElementById('form-otp');
+          otpForm.style.opacity = '1';
+          otpForm.style.pointerEvents = 'auto';
+          otpForm.style.transform = 'translateX(0)';
+          
+          document.getElementById('otp-email-display').innerText = email;
+          document.getElementById('auth-title').innerText = 'Verify Email';
+          document.getElementById('auth-subtitle').innerText = 'Almost there';
+          
+          UI.toast("Verification code sent!", "success");
+          
+          // Focus first OTP input
+          setTimeout(() => document.querySelector('#otp-inputs input').focus(), 300);
+        }
+      } catch (err) {
+        UI.toast(err.message, "error");
+      } font-bold {
+        submitBtn.disabled = false;
+      }
+    });
+
+    // 5. OTP Input Logic
+    const otpInputs = document.querySelectorAll('#otp-inputs input');
+    otpInputs.forEach((input, index) => {
+      input.addEventListener('input', (e) => {
+        // Only allow numbers
+        e.target.value = e.target.value.replace(/[^0-9]/g, '');
+        if (e.target.value.length > 0 && index < otpInputs.length - 1) {
+          otpInputs[index + 1].focus();
+        }
+      });
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Backspace' && e.target.value === '' && index > 0) {
+          otpInputs[index - 1].focus();
+        }
+      });
+      // Handle Pasting a full code
+      input.addEventListener('paste', (e) => {
+        e.preventDefault();
+        const pastedData = (e.clipboardData || window.clipboardData).getData('text').replace(/[^0-9]/g, '').slice(0, 6);
+        if (pastedData) {
+          pastedData.split('').forEach((char, i) => {
+            if (otpInputs[i]) otpInputs[i].value = char;
+          });
+          const focusIndex = Math.min(pastedData.length, 5);
+          otpInputs[focusIndex].focus();
+        }
+      });
+    });
+
+    // Cancel OTP (Change Email)
+    document.getElementById('btn-cancel-otp').addEventListener('click', () => resetAuthForm(false));
+
+    function resetAuthForm(fullReset = false) {
+      State.pendingEmail = null;
+      State.pendingPassword = null;
+      document.getElementById('inp-password').value = '';
+      
+      if (fullReset) {
+        document.getElementById('inp-email').value = '';
+      }
+      
+      otpInputs.forEach(inp => inp.value = '');
+      
+      document.getElementById('form-credentials').style.opacity = '1';
+      document.getElementById('form-credentials').style.pointerEvents = 'auto';
+      document.getElementById('form-credentials').style.transform = 'translateX(0)';
+      
+      const otpForm = document.getElementById('form-otp');
+      otpForm.style.opacity = '0';
+      otpForm.style.pointerEvents = 'none';
+      otpForm.style.transform = 'translateX(20px)';
+      
+      setAuthMode('signup');
+    }
+
+    // 6. OTP Verification & Account Creation
+    document.getElementById('form-otp').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const code = Array.from(otpInputs).map(i => i.value).join('');
+      if (code.length < 6) return UI.toast("Enter all 6 digits", "error");
+      
+      const btn = document.getElementById('btn-verify-otp');
+      btn.disabled = true;
+      
+      try {
+        // Create user in DB
+        const user = {
+          email: State.pendingEmail.toLowerCase(),
+          passwordHash: State.pendingPassword,
+          role: State.selectedRole,
+          verified: true,
+          createdAt: Date.now()
+        };
+        
+        await DB.saveUser(user);
+        await DB.setSession(user.email, user.role);
+        
+        UI.toast("Account created successfully!", "success");
+        setTimeout(() => launchApp(user.role), 1000);
+        
+      } catch (err) {
+        UI.toast("Error creating account. Please try again.", "error");
+      } finally {
+        btn.disabled = false;
+      }
+    });
+
+    // 7. Launch Main App
+    function launchApp(role) {
+      UI.showScreen('screen-app');
+      
+      const frame = document.getElementById('app-frame');
+      const icon = document.getElementById('app-header-icon');
+      const title = document.getElementById('app-header-title');
+      
+      if (role === 'company') {
+        frame.src = "frontend/stitch_agritrace_frontend_operations_suite/baler_operator_data_capture_minimal/code.html";
+        icon.className = "w-8 h-8 rounded-lg flex items-center justify-center font-extrabold text-white bg-[#1E88E5] shadow-lg shadow-blue-500/30";
+        icon.innerHTML = '<span class="material-symbols-outlined text-[18px]">corporate_fare</span>';
+        title.innerText = "Baler Operator Hub";
+      } else {
+        frame.src = "frontend/stitch_agritrace_frontend_operations_suite/farmer_view_payment_status_minimal/code.html";
+        icon.className = "w-8 h-8 rounded-full flex items-center justify-center font-extrabold text-white bg-[#059669] shadow-lg shadow-emerald-500/30";
+        icon.innerHTML = '<span class="material-symbols-outlined text-[18px]">agriculture</span>';
+        title.innerText = "Farmer Dashboard";
+      }
+    }
+
+    // 8. Logout
+    document.getElementById('btn-logout').addEventListener('click', async () => {
+      await DB.clearSession();
+      document.getElementById('app-frame').src = "about:blank";
+      resetAuthForm(true);
+      UI.showScreen('screen-roles');
+      UI.toast("Logged out successfully");
+    });
+
+    // Boot
+    window.addEventListener('DOMContentLoaded', initApp);
+
+  </script>
+</body>
+</html>

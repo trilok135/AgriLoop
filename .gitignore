@@ -8,8 +8,6 @@ AgriLoop-main/
 backend/venv/
 venv/
 .venv/
-<<<<<<< HEAD
 *.db
 backend/*.db
-=======
->>>>>>> aa300e3 (feat: complete AgriLoop mobile web app UI with high-retention SVGs, Bauhaus & Neumorphism aesthetics, and E2E certificate pipeline)
+dist/
