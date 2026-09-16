@@ -1,0 +1,14 @@
+{
+    "HUB001": {
+        "risk_score": 87,
+        "risk_level": "HIGH"
+    },
+    "HUB002": {
+        "risk_score": 65,
+        "risk_level": "MEDIUM"
+    },
+    "HUB003": {
+        "risk_score": 32,
+        "risk_level": "LOW"
+    }
+}

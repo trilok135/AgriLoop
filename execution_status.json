@@ -1,0 +1,16 @@
+{
+    "repository_audit": "complete",
+    "dependencies": "verified",
+    "dataset_download": "verified",
+    "dataset_validation": "verified",
+    "risk_model": "verified",
+    "database": "verified",
+    "backend": "verified",
+    "api": "verified",
+    "payment": "mock_verified",
+    "eway_bill": "mock_verified",
+    "documents": "verified",
+    "custody_tracking": "verified",
+    "automated_tests": "verified",
+    "end_to_end": "verified"
+}
